@@ -22,10 +22,11 @@ net.cuda()
 criterion = nn.MSELoss()
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
+running_loss = []
+
 for epoch in range(num_epochs):  
 
-    running_loss = []
-    for i, (data, target) in enumerate(trainloader,0):
+    for i, (data, target) in enumerate(trainloader, 0):
 
         audios = data.to('cuda:0')
         labels = target.to('cuda:0')
