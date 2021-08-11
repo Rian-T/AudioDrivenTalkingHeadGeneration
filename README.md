@@ -1,5 +1,7 @@
 # AudioDrivenTalkingHeadGeneration
 
+[Link to AudioStyleNet repository](https://github.com/FeliMe/AudioStyleNet)
+
 ### Modules loaded :
 
 ```bash
