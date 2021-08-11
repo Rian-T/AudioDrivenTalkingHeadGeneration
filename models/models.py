@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import my_models.model_utils as model_utils
+import models.model_utils as model_utils
 
 class AudioExpressionNet3(nn.Module):
     def __init__(self, T, test_init=True):
@@ -28,13 +28,13 @@ class AudioExpressionNet3(nn.Module):
             nn.LeakyReLU(0.02),
         )
 
-        # Load pre-trained convNet
-        if not test_init:
-            self.convNet.load_state_dict(torch.load(
-                'model/audio2expression_convNet_justus.pt'))
+        # # Load pre-trained convNet
+        # if not test_init:
+        #     self.convNet.load_state_dict(torch.load(
+        #         'model/audio2expression_convNet_justus.pt'))
 
         # latent_dim = 128
-        pca_dim = 512
+        #pca_dim = 512
         # self.latent_in = nn.Linear(self.expression_dim, latent_dim)
 
         # # Initialize latent_in with pca components
@@ -47,15 +47,19 @@ class AudioExpressionNet3(nn.Module):
         self.fc1 = nn.Linear(64, 128)
         #self.adain1 = model_utils.LinearAdaIN(latent_dim, 128)
         self.fc2 = nn.Linear(128, 256)
-        self.fc3 = nn.Linear(256, pca_dim)
-        self.fc_out = nn.Linear(pca_dim, self.expression_dim)
+        self.fc3 = nn.Linear(256, 512)
+        #self.fc_out = nn.Linear(pca_dim, self.expression_dim)
+        self.fc4 = nn.Linear(512, 256)
+        self.fc5 = nn.Linear(256, 128)
+        self.fc6 = nn.Linear(128, 64)
+        self.fc_out = nn.Linear(64, 20)
 
-        # Init fc_out with 512 precomputed pca components
-        if not test_init:
-            pca = 'model/audio_dataset_offset_to_mean_4to8_pca512.pt'
-            weight = torch.load(pca)[:pca_dim].T
-            with torch.no_grad():
-                self.fc_out.weight = nn.Parameter(weight)
+        # # Init fc_out with 512 precomputed pca components
+        # if not test_init:
+        #     pca = 'model/audio_dataset_offset_to_mean_4to8_pca512.pt'
+        #     weight = torch.load(pca)[:pca_dim].T
+        #     with torch.no_grad():
+        #         self.fc_out.weight = nn.Parameter(weight)
 
         # attention
         self.attentionNet = nn.Sequential(
@@ -100,7 +104,10 @@ class AudioExpressionNet3(nn.Module):
             #z_ = F.leaky_relu(self.adain1(self.fc1(t), latent), 0.02) #original line
             z_ = F.leaky_relu(self.fc1(t))
             z_ = F.leaky_relu(self.fc2(z_))
-            z_ = self.fc3(z_)
+            z_ = F.leaky_relu(self.fc3(z_))
+            z_ = F.leaky_relu(self.fc4(z_))
+            z_ = F.leaky_relu(self.fc5(z_))
+            z_ = F.leaky_relu(self.fc6(z_))
             expression.append(self.fc_out(z_))
         expression = torch.stack(expression, dim=1)  # [b, T, expression_dim]
 
@@ -114,6 +121,45 @@ class AudioExpressionNet3(nn.Module):
 
         return expression.view(b, 1, 20)  # shape: [b, 4, 512]
 
+# def forward(self, audio_features):
+#         prediction = []
+#         for audio in audio_features:
+#             # input shape: [b, T, 16, 29]
+#             b = audio.shape[0]
+#             audio = audio.permute(0, 1, 3, 2)  # [b, T, 29, 16]
+#             audio = audio.view(b * self.T, 29, 16)  # [b * T, 29, 16]
+
+#             # Convolution
+#             conv_res = self.convNet(audio)
+#             conv_res = conv_res.view(b * self.T, 1, -1)  # [b * T, 1, 64]
+
+#             #latent = self.latent_in(latent.clone().view(b, -1))
+
+#             # Fully connected
+#             expression = []
+#             conv_res = conv_res.view(b, self.T, 1, -1)  # [b, T, 1, 64]
+#             conv_res = conv_res.transpose(0, 1)  # [T, b, 1, 64]
+#             for t in conv_res:
+#                 #z_ = F.leaky_relu(self.adain1(self.fc1(t), latent), 0.02) #original line
+#                 z_ = F.leaky_relu(self.fc1(t))
+#                 z_ = F.leaky_relu(self.fc2(z_))
+#                 z_ = F.leaky_relu(self.fc3(z_))
+#                 z_ = F.leaky_relu(self.fc4(z_))
+#                 z_ = F.leaky_relu(self.fc5(z_))
+#                 z_ = F.leaky_relu(self.fc6(z_))
+#                 expression.append(self.fc_out(z_))
+#             expression = torch.stack(expression, dim=1)  # [b, T, expression_dim]
+
+#             # expression = expression[:, (self.T // 2):(self.T // 2) + 1]
+
+#             if self.T > 1:
+#                 expression_T = expression.transpose(1, 2)  # [b, expression_dim, T]
+#                 attention = self.attentionNet(
+#                     expression_T).unsqueeze(-1)  # [b, T, 1]
+#                 expression = torch.bmm(expression_T, attention)
+
+#             prediction.append(expression.view(b, 1, 20))  # shape: [b, 4, 512]
+#         return prediction
 
 # class resnetEncoder(nn.Module):
 #     def __init__(self, net=18, out_dim=512 * 18, pretrained=False):
