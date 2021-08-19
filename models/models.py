@@ -10,7 +10,7 @@ from pytorch_lightning.loggers import WandbLogger
 from torchmetrics.functional import mean_absolute_percentage_error
 
 class AudioExpressionNet3(pl.LightningModule):
-    def __init__(self, T, test_init=True, learning_rate=0.0001):
+    def __init__(self, T=8, test_init=True, learning_rate=0.0001):
         super(AudioExpressionNet3, self).__init__()
         
         def _set_requires_grad_false(layer):

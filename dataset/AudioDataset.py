@@ -35,10 +35,6 @@ class AudioDataset(Dataset):
             audios = torch.stack([torch.tensor(np.load(p), dtype=torch.float32)[:, :32]
                                 for p in audio_path])
             
-            # # Pad audio features (probably useful only for inference) 
-            # pad = self.T // 2
-            # audios = F.pad(audios, (0, 0, 0, 0, pad, pad - 1), 'constant', 0.)
-            # audios = audios.unfold(0, self.T, 1).permute(0, 3, 1, 2)
             
             #Load A
             A = torch.tensor(np.load(self.A[idx]), dtype=torch.float32)
@@ -58,7 +54,7 @@ class AudioDataset(Dataset):
 
 
 
-class AudioDatasetLazy(Dataset):
+class AudioDatasetLazy(Dataset): # Same as AudioDataset but loads files when needed rather than loading everything at init
     """Audio dataset."""
 
     def __init__(self, data_path, T):
@@ -85,11 +81,6 @@ class AudioDatasetLazy(Dataset):
 
         end = randrange(self.T,len(audios))
         audios = audios[end-self.T:end]
-
-        # # Pad audio features (probably useful only for inference) 
-        # pad = self.T // 2
-        # audios = F.pad(audios, (0, 0, 0, 0, pad, pad - 1), 'constant', 0.)
-        # audios = audios.unfold(0, self.T, 1).permute(0, 3, 1, 2)
         
         #Load A
         A = torch.tensor(np.load(self.A[idx]), dtype=torch.float32)
