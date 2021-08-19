@@ -1,44 +1,49 @@
-import torch.optim as optim
-from torch import nn
-from dataset.AudioDataset import AudioDataset
-from models.models import AudioExpressionNet3
 import torch
 
-num_epochs = 10
-batch_size = 64
+from dataset.AudioDataset import AudioDataset, AudioDatasetLazy
+from models.models import AudioExpressionNet3
 
-audio_dataset = AudioDataset("/data/stars/user/rtouchen/AudioVisualGermanDataset512/", 8)
+import pytorch_lightning as pl
+from pytorch_lightning.loggers import WandbLogger  
+from pytorch_lightning import Trainer
+from pytorch_lightning.callbacks import LearningRateMonitor
+from pytorch_lightning.callbacks import ModelCheckpoint
 
-train_set, test_set = torch.utils.data.random_split(audio_dataset, [101, 30])
+import wandb 
 
-trainloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size,
-                                          shuffle=True, num_workers=2)
-testloader = torch.utils.data.DataLoader(test_set, batch_size=batch_size,
-                                          shuffle=True, num_workers=2)
+hyperparameter_defaults = dict(
+    learning_rate=0.0001,
+    batch_size = 512,
+)
 
-net = AudioExpressionNet3(8)
-net.cuda()
+num_epochs = 30
 
-criterion = nn.MSELoss()
-optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+wandb_logger = WandbLogger(project='AudioDrivenGeneration', log_model="all") 
 
-running_loss = []
+wandb.init(config=hyperparameter_defaults)
+config = wandb.config
 
-for epoch in range(num_epochs):  
 
-    for i, (data, target) in enumerate(trainloader, 0):
+data_path = "/data/stars/user/rtouchen/AudioVisualGermanDataset512/"
+audio_dataset = AudioDataset(data_path, 8)
 
-        audios = data.to('cuda:0')
-        labels = target.to('cuda:0')
 
-        # zero the parameter gradientss
-        optimizer.zero_grad()
+train_len = int(len(audio_dataset)*0.7)
+test_len = len(audio_dataset) - train_len
 
-        # forward + backward + optimize
-        outputs = net(audios)
-        loss = criterion(outputs, labels)
-        loss.backward()
-        optimizer.step()
+train_set, test_set = torch.utils.data.random_split(audio_dataset, [train_len, test_len])
 
-        # log statistics
-        running_loss.append(loss.item())
+
+trainloader = torch.utils.data.DataLoader(train_set, batch_size=config["batch_size"], 
+                                          shuffle=True, num_workers=8, pin_memory=True)
+testloader = torch.utils.data.DataLoader(test_set, batch_size=config["batch_size"], 
+                                          shuffle=False, num_workers=8, pin_memory=True)
+
+model = AudioExpressionNet3(8, learning_rate=config["learning_rate"])
+
+lr_monitor = LearningRateMonitor(logging_interval='step')
+
+trainer = pl.Trainer(gpus=1, logger=wandb_logger, log_every_n_steps=10, callbacks=[lr_monitor], max_epochs=num_epochs, default_root_dir="./checkpoints")
+wandb_logger.watch(model)
+
+trainer.fit(model, trainloader, testloader)

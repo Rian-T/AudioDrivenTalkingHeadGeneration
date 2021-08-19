@@ -1,3 +1,9 @@
+wandb
+lightning_logs
+
+*.stderr
+*.stdout
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
