@@ -4,6 +4,8 @@ import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 
+import os.path
+
 from glob import glob
 from random import randrange
 
@@ -17,25 +19,30 @@ class AudioDataset(Dataset):
             data_path (string): Path to the dataset with audio features and A.
         """
         self.data_path = data_path
-        
+        self.T = T
+
         self.audio_features = sorted(glob(self.data_path + "/audio_features/*/"))
         self.A = sorted(glob(self.data_path + "/w512/*.npy"))
 
-        self.T = T
 
         self.audios = []
         self.labels = []
 
         print("Loading audio features")
-        
+
         # Load audio features
         for idx in tqdm(range(len(self.audio_features))):
+            
+            if os.path.exists(self.audio_features[idx] + "audios.pt"):
+                audios = torch.load(self.audio_features[idx] + "audios.pt")
 
-            audio_path = sorted(glob(self.audio_features[idx] + "*.npy"))
-            audios = torch.stack([torch.tensor(np.load(p), dtype=torch.float32)[:, :32]
-                                for p in audio_path])
-            
-            
+            else: #Very slow
+                audio_path = sorted(glob(self.audio_features[idx] + "*.npy"))
+                audios = torch.stack([torch.tensor(np.load(p), dtype=torch.float32)[:, :32]
+                                    for p in audio_path])
+                
+                torch.save(audios, self.audio_features[idx] + "audios.pt")
+
             #Load A
             A = torch.tensor(np.load(self.A[idx]), dtype=torch.float32)
 
@@ -90,7 +97,7 @@ class AudioDatasetLazy(Dataset): # Same as AudioDataset but loads files when nee
 
 
 if __name__ == '__main__':
-    dataset = AudioDatasetLazy('/data/stars/user/rtouchen/AudioVisualGermanDataset512', 8)
+    dataset = AudioDataset('/data/stars/user/rtouchen/AudioVisualGermanDataset512', 8)
     
     print(len(dataset))
     print('3rd item audio shape : ' + str(dataset[2][0].shape))
