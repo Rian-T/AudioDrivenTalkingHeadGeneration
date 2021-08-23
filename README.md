@@ -17,3 +17,17 @@ module load gcc/7.3.0
 conda env create -f environment.yml
 source activate audiostylenet
 ```
+
+### Usage
+
+#### Deepspeech
+
+Generate audio features from audio files using deepspeech with
+
+```bash
+python run_voca_feature_extraction.py --ds_fname 0.9.3/output_graph_de.pbmm --audiofiles path/to/folder/containing/audio/files/ --out_path path/to/out/folder/
+```
+
+--audiofiles : Path to folder containing .wav audio files
+
+--out_path : Path to output directory. It will create in it a new folder for each audio file containing one numpy file for each frame
