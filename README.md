@@ -31,10 +31,18 @@ unzip data.zip
 
 #### Deepspeech
 
-Generate audio features from audio files using deepspeech with
+1. Download pre-trained deepspeech model and extract it to ds_graph folder :
 
 ```bash
-python run_voca_feature_extraction.py --ds_fname 0.9.3/output_graph_de.pbmm --audiofiles path/to/folder/containing/audio/files/ --out_path path/to/out/folder/
+wget https://github.com/mozilla/DeepSpeech/releases/download/v0.1.0/deepspeech-0.1.0-models.tar.gz
+tar zxvf deepspeech-0.1.0-models.tar.gz
+mv models/output_graph.pb deepspeech/ds_graph/.
+```
+
+2. Generate audio features from audio files using deepspeech with
+
+```bash
+python run_voca_feature_extraction.py --audiofiles path/to/folder/containing/audio/files/ --out_path path/to/out/folder/
 ```
 
 --audiofiles : Path to folder containing .wav audio files

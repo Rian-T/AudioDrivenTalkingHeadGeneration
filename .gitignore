@@ -6,6 +6,11 @@ data/w512/
 data/out_a/
 data/data.zip
 
+deepspeech/ds_graph/*.tar.gz
+deepspeech/ds_graph/output_graph.pb
+deepspeech/ds_graph/trie
+deepspeech/ds_graph/lm.binary
+deepspeech/ds_graph/models
 checkpoints/
 
 *.stderr
