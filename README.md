@@ -20,6 +20,13 @@ source activate audiostylenet
 
 ### Usage
 
+#### Extract data
+
+```bash
+
+unzip data.zip
+```
+
 #### Deepspeech
 
 Generate audio features from audio files using deepspeech with
@@ -31,3 +38,12 @@ python run_voca_feature_extraction.py --ds_fname 0.9.3/output_graph_de.pbmm --au
 --audiofiles : Path to folder containing .wav audio files
 
 --out_path : Path to output directory. It will create in it a new folder for each audio file containing one numpy file for each frame
+
+
+#### Generate A from audio features
+
+```bash
+python run_audiodriven.py
+```
+
+It will use audio features located at ./data/audio_features/ to generate A at ./data/a512/ 

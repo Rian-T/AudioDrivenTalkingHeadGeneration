@@ -1,6 +1,10 @@
 wandb
 lightning_logs
 
+data/
+
+checkpoints/
+
 *.stderr
 *.stdout
 

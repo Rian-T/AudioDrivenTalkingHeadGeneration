@@ -8,12 +8,21 @@ from models.models import AudioExpressionNet3
 from glob import glob
 from tqdm import tqdm
 
-data_path = "./data"
+from pathlib import Path
+import random
+import string
+
+data_path = "/data/stars/user/rtouchen/AudioVisualGermanDataset512"
+experience_id = ''.join(random.sample(string.ascii_lowercase+string.digits,10))
+
+print("Run id : " + experience_id)
+Path(f"{data_path}/out_a/{experience_id}").mkdir(parents=True, exist_ok=True)
+
 T = 8
 
 audio_features = sorted(glob(data_path + "/audio_features/*/"))
 
-pretrained_model = AudioExpressionNet3.load_from_checkpoint('checkpoints/audiodriven/gitg0x5k/checkpoints/epoch=29-step=1679.ckpt')
+pretrained_model = AudioExpressionNet3.load_from_checkpoint('pretrained/epoch=29-step=1679.ckpt')
 pretrained_model.eval()
 
 for idx in tqdm(range(len(audio_features))):
@@ -47,4 +56,4 @@ for idx in tqdm(range(len(audio_features))):
 
     predictions = torch.stack(predictions)      # [nb_frames, 1, 20]
     preds =  predictions.detach().cpu().numpy()
-    np.save(data_path + f'/a512/{idx}.npy', preds)
+    np.save(data_path + f'/out_a/{experience_id}/{idx}.npy', preds)
