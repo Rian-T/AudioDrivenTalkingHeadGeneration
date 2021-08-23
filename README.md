@@ -22,7 +22,7 @@ source activate audiostylenet
 
 #### Extract data
 
-Put data.zip at inside the data folder and unzip it :
+Put data.zip inside the data folder and unzip it :
 
 ```bash
 cd data
