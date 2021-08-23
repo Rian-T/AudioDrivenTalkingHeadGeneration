@@ -12,7 +12,7 @@ from pathlib import Path
 import random
 import string
 
-data_path = "/data/stars/user/rtouchen/AudioVisualGermanDataset512"
+data_path = "./data"
 experience_id = ''.join(random.sample(string.ascii_lowercase+string.digits,10))
 
 print("Run id : " + experience_id)
