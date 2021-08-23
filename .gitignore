@@ -1,7 +1,10 @@
 wandb
 lightning_logs
 
-data/
+data/audio_features/
+data/w512/
+data/out_a/
+data/data.zip
 
 checkpoints/
 

@@ -22,8 +22,10 @@ source activate audiostylenet
 
 #### Extract data
 
-```bash
+Put data.zip at inside the data folder and unzip it :
 
+```bash
+cd data
 unzip data.zip
 ```
 
@@ -46,4 +48,12 @@ python run_voca_feature_extraction.py --ds_fname 0.9.3/output_graph_de.pbmm --au
 python run_audiodriven.py
 ```
 
-It will use audio features located at ./data/audio_features/ to generate A at ./data/a512/ 
+It will use audio features located at ./data/audio_features/ to generate A at ./data/out_a/{random_id}/ 
+
+#### Run training
+
+```bash
+python run_training
+```
+
+It will save checkpoints at ./checkpoints/
