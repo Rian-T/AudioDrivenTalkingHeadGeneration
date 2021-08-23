@@ -24,7 +24,7 @@ wandb.init(config=hyperparameter_defaults)
 config = wandb.config
 
 
-data_path = "/data/stars/user/rtouchen/AudioVisualGermanDataset512/"
+data_path = "./data"
 audio_dataset = AudioDataset(data_path, 8)
 
 

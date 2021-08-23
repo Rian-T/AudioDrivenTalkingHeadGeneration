@@ -8,7 +8,7 @@ from models.models import AudioExpressionNet3
 from glob import glob
 from tqdm import tqdm
 
-data_path = "/data/stars/user/rtouchen/AudioVisualGermanDataset512/"
+data_path = "./data"
 T = 8
 
 audio_features = sorted(glob(data_path + "/audio_features/*/"))

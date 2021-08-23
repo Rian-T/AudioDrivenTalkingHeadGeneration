@@ -97,7 +97,7 @@ class AudioDatasetLazy(Dataset): # Same as AudioDataset but loads files when nee
 
 
 if __name__ == '__main__':
-    dataset = AudioDataset('/data/stars/user/rtouchen/AudioVisualGermanDataset512', 8)
+    dataset = AudioDataset('./data', 8)
     
     print(len(dataset))
     print('3rd item audio shape : ' + str(dataset[2][0].shape))
